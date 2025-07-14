@@ -105,7 +105,7 @@ if ($economy instanceof NetherEconomy) {
   <img src="https://github.com/NetherByte233/images/blob/main/DepositWhole.jpg?raw=true" width="45%" />
 </p>
 <p align="center">
-  <img src="https://github.com/NetherByte233/images/blob/main/DepositHalf.jpg?raw=true" width="45%" />
+  <img src="https://github.com/NetherByte233/images/blob/main/DepositHalf.jpg.jpg?raw=true" width="45%" />
   <img src="https://github.com/NetherByte233/images/blob/main/DepositCustom.jpg?raw=true" width="45%" />
 </p>
 <p align="center">
