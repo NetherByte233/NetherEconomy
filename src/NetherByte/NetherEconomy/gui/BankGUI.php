@@ -135,7 +135,7 @@ class BankGUI {
         $menu = InvMenu::create(InvMenuTypeIds::TYPE_DOUBLE_CHEST);
         $menu->setName("Deposit to Bank");
         $itemParser = StringToItemParser::getInstance();
-        $safe = function($name, $customName, $count = 1) use ($itemParser) {
+        $safe = function($name, $customName, $count = 1, $lore = []) use ($itemParser) {
             $item = $itemParser->parse($name);
             if ($item === null) {
                 $item = $itemParser->parse("stone");
@@ -143,6 +143,7 @@ class BankGUI {
             } else {
                 $item->setCustomName($customName);
                 $item->setCount($count);
+                if (!empty($lore)) $item->setLore($lore);
             }
             return $item;
         };
@@ -152,9 +153,31 @@ class BankGUI {
         for ($i = 0; $i < 54; $i++) {
             $menu->getInventory()->setItem($i, clone $glass);
         }
+        $name = $player->getName();
+        $purse = $plugin->getPurse($name);
+        $bank = $plugin->getBank($name);
         // Set options (same slots as main bank GUI for consistency)
-        $menu->getInventory()->setItem(20, $safe("chest", "§aDeposit All Purse", 64));
-        $menu->getInventory()->setItem(22, $safe("chest", "§bDeposit 50% Purse", 32));
+        $menu->getInventory()->setItem(20, $safe(
+            "chest",
+            "§aDeposit whole purse",
+            64,
+            [
+                "§7Deposit whole purse",
+                "§7Current balance: §a" . $plugin::formatShortNumber($bank),
+                "§7Amount to deposit: §6" . $plugin::formatShortNumber($purse)
+            ]
+        ));
+        $half = (int)floor($purse / 2);
+        $menu->getInventory()->setItem(22, $safe(
+            "chest",
+            "§bHalf your purse",
+            32,
+            [
+                "§7Deposit half purse",
+                "§7Current balance: §a" . $plugin::formatShortNumber($bank),
+                "§7Amount to deposit: §6" . $plugin::formatShortNumber($half)
+            ]
+        ));
         $menu->getInventory()->setItem(24, $safe("sign", "§eCustom Amount"));
         $menu->getInventory()->setItem(49, $safe("arrow", "§cBack"));
         $menu->setListener(function($transaction) use ($plugin) {
@@ -221,7 +244,7 @@ class BankGUI {
         $menu = InvMenu::create(InvMenuTypeIds::TYPE_DOUBLE_CHEST);
         $menu->setName("Withdraw from Bank");
         $itemParser = StringToItemParser::getInstance();
-        $safe = function($name, $customName, $count = 1) use ($itemParser) {
+        $safe = function($name, $customName, $count = 1, $lore = []) use ($itemParser) {
             $item = $itemParser->parse($name);
             if ($item === null) {
                 $item = $itemParser->parse("stone");
@@ -229,6 +252,7 @@ class BankGUI {
             } else {
                 $item->setCustomName($customName);
                 $item->setCount($count);
+                if (!empty($lore)) $item->setLore($lore);
             }
             return $item;
         };
@@ -238,10 +262,40 @@ class BankGUI {
         for ($i = 0; $i < 54; $i++) {
             $menu->getInventory()->setItem($i, clone $glass);
         }
-        // Set options
-        $menu->getInventory()->setItem(19, $safe("furnace", "§aWithdraw All Bank", 64));
-        $menu->getInventory()->setItem(21, $safe("furnace", "§bWithdraw 50% Bank", 32));
-        $menu->getInventory()->setItem(23, $safe("furnace", "§eWithdraw 20% Bank", 20));
+        $name = $player->getName();
+        $bank = $plugin->getBank($name);
+        $menu->getInventory()->setItem(19, $safe(
+            "furnace",
+            "§aEverything in account",
+            64,
+            [
+                "§7Everything in account",
+                "§7Current balance: §a" . $plugin::formatShortNumber($bank),
+                "§7Amount to withdraw: §6" . $plugin::formatShortNumber($bank)
+            ]
+        ));
+        $half = (int)floor($bank / 2);
+        $menu->getInventory()->setItem(21, $safe(
+            "furnace",
+            "§bHalf your account",
+            32,
+            [
+                "§7Withdraw half bank",
+                "§7Current balance: §a" . $plugin::formatShortNumber($bank),
+                "§7Amount to withdraw: §6" . $plugin::formatShortNumber($half)
+            ]
+        ));
+        $portion = (int)floor($bank * 0.2);
+        $menu->getInventory()->setItem(23, $safe(
+            "furnace",
+            "§eWithdraw 20%",
+            20,
+            [
+                "§7Withdraw 20% bank",
+                "§7Current balance: §a" . $plugin::formatShortNumber($bank),
+                "§7Amount to withdraw: §6" . $plugin::formatShortNumber($portion)
+            ]
+        ));
         $menu->getInventory()->setItem(25, $safe("sign", "§eCustom Amount"));
         $menu->getInventory()->setItem(49, $safe("arrow", "§cBack"));
         $menu->setListener(function($transaction) use ($plugin) {
@@ -370,8 +424,8 @@ class BankGUI {
             $menu->getInventory()->setItem($i, clone $glass);
         }
         $menu->setName("Deposit to Bank");
-        $menu->getInventory()->setItem(20, $safe("chest", "§aDeposit All Purse", 64));
-        $menu->getInventory()->setItem(22, $safe("chest", "§bDeposit 50% Purse", 32));
+        $menu->getInventory()->setItem(20, $safe("chest", "§aDeposit whole purse", 64));
+        $menu->getInventory()->setItem(22, $safe("chest", "§bHalf your purse", 32));
         $menu->getInventory()->setItem(24, $safe("sign", "§eCustom Amount"));
         $menu->getInventory()->setItem(49, $safe("arrow", "§cBack"));
         $menu->setListener(function($transaction) use ($plugin, $menu) {
@@ -452,9 +506,9 @@ class BankGUI {
             $menu->getInventory()->setItem($i, clone $glass);
         }
         $menu->setName("Withdraw from Bank");
-        $menu->getInventory()->setItem(19, $safe("furnace", "§aWithdraw All Bank", 64));
-        $menu->getInventory()->setItem(21, $safe("furnace", "§bWithdraw 50% Bank", 32));
-        $menu->getInventory()->setItem(23, $safe("furnace", "§eWithdraw 20% Bank", 20));
+        $menu->getInventory()->setItem(19, $safe("furnace", "§aEverything in account", 64));
+        $menu->getInventory()->setItem(21, $safe("furnace", "§bHalf your account", 32));
+        $menu->getInventory()->setItem(23, $safe("furnace", "§eWithdraw 20%", 20));
         $menu->getInventory()->setItem(25, $safe("sign", "§eCustom Amount"));
         $menu->getInventory()->setItem(49, $safe("arrow", "§cBack"));
         $menu->setListener(function($transaction) use ($plugin, $menu) {
