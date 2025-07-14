@@ -4,7 +4,7 @@ branches:
 - main
 projects:
   NetherEconomy:
-    path: "src/NetherByte/NetherEconomy/NetherEconomy.php"
+    path: "src/NetherByte/NetherEconomy/NetherEconomy"
   
    icon: Icon.png
 ...
