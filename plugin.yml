@@ -1,0 +1,57 @@
+name: NetherEconomy
+main: NetherByte\NetherEconomy\NetherEconomy
+version: 1.0.0
+author: YourName
+api: [5.0.0]
+description: Hypixel-style economy plugin with deposit, withdraw, transactions, info, and upgrades.
+commands:
+  deposit:
+    description: Deposit money into your bank account
+    usage: "/deposit <amount>"
+    permission: nethereconomy.command.deposit
+  withdraw:
+    description: Withdraw money from your bank account
+    usage: "/withdraw <amount>"
+    permission: nethereconomy.command.withdraw
+  transactions:
+    description: View your recent transactions
+    usage: "/transactions"
+    permission: nethereconomy.command.transactions
+  econinfo:
+    description: View your economy information
+    usage: "/econinfo"
+    permission: nethereconomy.command.econinfo
+  upgradebank:
+    description: Upgrade your bank features
+    usage: "/upgradebank"
+    permission: nethereconomy.command.upgradebank
+  bank:
+    description: Open your bank GUI
+    usage: "/bank"
+    permission: nethereconomy.command.bank
+  givecoins:
+    description: Give coins to a player (OP only)
+    usage: "/givecoins <player> <amount>"
+    permission: nethereconomy.command.givecoins
+permissions:
+  nethereconomy.command.deposit:
+    description: Allows use of /deposit
+    default: true
+  nethereconomy.command.withdraw:
+    description: Allows use of /withdraw
+    default: true
+  nethereconomy.command.transactions:
+    description: Allows use of /transactions
+    default: true
+  nethereconomy.command.econinfo:
+    description: Allows use of /econinfo
+    default: true
+  nethereconomy.command.upgradebank:
+    description: Allows use of /upgradebank
+    default: true
+  nethereconomy.command.bank:
+    description: Allows use of /bank
+    default: true
+  nethereconomy.command.givecoins:
+    description: Allows use of /givecoins
+    default: op
