@@ -407,7 +407,7 @@ class BankGUI {
     // FastSwitching: update menu in-place
     public static function switchToDepositGUI(Player $player, NetherEconomy $plugin, InvMenu $menu): void {
         $itemParser = \pocketmine\item\StringToItemParser::getInstance();
-        $safe = function($name, $customName, $count = 1) use ($itemParser) {
+        $safe = function($name, $customName, $count = 1, $lore = []) use ($itemParser) {
             $item = $itemParser->parse($name);
             if ($item === null) {
                 $item = $itemParser->parse("stone");
@@ -415,6 +415,7 @@ class BankGUI {
             } else {
                 $item->setCustomName($customName);
                 $item->setCount($count);
+                if (!empty($lore)) $item->setLore($lore);
             }
             return $item;
         };
@@ -424,8 +425,30 @@ class BankGUI {
             $menu->getInventory()->setItem($i, clone $glass);
         }
         $menu->setName("Deposit to Bank");
-        $menu->getInventory()->setItem(20, $safe("chest", "§aDeposit whole purse", 64));
-        $menu->getInventory()->setItem(22, $safe("chest", "§bHalf your purse", 32));
+        $name = $player->getName();
+        $purse = $plugin->getPurse($name);
+        $bank = $plugin->getBank($name);
+        $menu->getInventory()->setItem(20, $safe(
+            "chest",
+            "§aDeposit whole purse",
+            64,
+            [
+                "§7Deposit whole purse",
+                "§7Current balance: §a" . $plugin::formatShortNumber($bank),
+                "§7Amount to deposit: §6" . $plugin::formatShortNumber($purse)
+            ]
+        ));
+        $half = (int)floor($purse / 2);
+        $menu->getInventory()->setItem(22, $safe(
+            "chest",
+            "§bHalf your purse",
+            32,
+            [
+                "§7Deposit half purse",
+                "§7Current balance: §a" . $plugin::formatShortNumber($bank),
+                "§7Amount to deposit: §6" . $plugin::formatShortNumber($half)
+            ]
+        ));
         $menu->getInventory()->setItem(24, $safe("sign", "§eCustom Amount"));
         $menu->getInventory()->setItem(49, $safe("arrow", "§cBack"));
         $menu->setListener(function($transaction) use ($plugin, $menu) {
@@ -489,7 +512,7 @@ class BankGUI {
 
     public static function switchToWithdrawGUI(Player $player, NetherEconomy $plugin, InvMenu $menu): void {
         $itemParser = \pocketmine\item\StringToItemParser::getInstance();
-        $safe = function($name, $customName, $count = 1) use ($itemParser) {
+        $safe = function($name, $customName, $count = 1, $lore = []) use ($itemParser) {
             $item = $itemParser->parse($name);
             if ($item === null) {
                 $item = $itemParser->parse("stone");
@@ -497,6 +520,7 @@ class BankGUI {
             } else {
                 $item->setCustomName($customName);
                 $item->setCount($count);
+                if (!empty($lore)) $item->setLore($lore);
             }
             return $item;
         };
@@ -506,9 +530,40 @@ class BankGUI {
             $menu->getInventory()->setItem($i, clone $glass);
         }
         $menu->setName("Withdraw from Bank");
-        $menu->getInventory()->setItem(19, $safe("furnace", "§aEverything in account", 64));
-        $menu->getInventory()->setItem(21, $safe("furnace", "§bHalf your account", 32));
-        $menu->getInventory()->setItem(23, $safe("furnace", "§eWithdraw 20%", 20));
+        $name = $player->getName();
+        $bank = $plugin->getBank($name);
+        $menu->getInventory()->setItem(19, $safe(
+            "furnace",
+            "§aEverything in account",
+            64,
+            [
+                "§7Everything in account",
+                "§7Current balance: §a" . $plugin::formatShortNumber($bank),
+                "§7Amount to withdraw: §6" . $plugin::formatShortNumber($bank)
+            ]
+        ));
+        $half = (int)floor($bank / 2);
+        $menu->getInventory()->setItem(21, $safe(
+            "furnace",
+            "§bHalf your account",
+            32,
+            [
+                "§7Withdraw half bank",
+                "§7Current balance: §a" . $plugin::formatShortNumber($bank),
+                "§7Amount to withdraw: §6" . $plugin::formatShortNumber($half)
+            ]
+        ));
+        $portion = (int)floor($bank * 0.2);
+        $menu->getInventory()->setItem(23, $safe(
+            "furnace",
+            "§eWithdraw 20%",
+            20,
+            [
+                "§7Withdraw 20% bank",
+                "§7Current balance: §a" . $plugin::formatShortNumber($bank),
+                "§7Amount to withdraw: §6" . $plugin::formatShortNumber($portion)
+            ]
+        ));
         $menu->getInventory()->setItem(25, $safe("sign", "§eCustom Amount"));
         $menu->getInventory()->setItem(49, $safe("arrow", "§cBack"));
         $menu->setListener(function($transaction) use ($plugin, $menu) {
