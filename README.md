@@ -128,9 +128,26 @@ if ($economy instanceof NetherEconomy) {
 ---
 
 ## Screenshots
-
-
-
+<p align="center">
+  <img src="https://github.com/NetherByte233/images/blob/main/Deposit.jpg?raw=true" width="45%" />
+  <img src="https://github.com/NetherByte233/images/blob/main/Withdraw.jpg?raw=true" width="45%" />
+</p>
+<p align="center">
+  <img src="https://github.com/NetherByte233/images/blob/main/RecentTransaction.jpg?raw=true" width="45%" />
+  <img src="https://github.com/NetherByte233/images/blob/main/DepositWhole.jpg?raw=true" width="45%" />
+</p>
+<p align="center">
+  <img src="https://github.com/NetherByte233/images/blob/main/DepositHalf.jpg?raw=true" width="45%" />
+  <img src="https://github.com/NetherByte233/images/blob/main/DepositCustom.jpg?raw=true" width="45%" />
+</p>
+<p align="center">
+  <img src="https://github.com/NetherByte233/images/blob/main/WithdrawWhole.jpg?raw=true" width="45%" />
+  <img src="https://github.com/NetherByte233/images/blob/main/WithdrawHalf.jpg?raw=true" width="45%" />
+</p>
+<p align="center">
+  <img src="https://github.com/NetherByte233/images/blob/main/Withdraw20.jpg?raw=true" width="45%" />
+  <img src="https://github.com/NetherByte233/images/blob/main/WithdrawCustom.jpg?raw=true" width="45%" />
+</p>
 ---
 
 ## License

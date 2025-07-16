@@ -1068,6 +1068,7 @@ class BankGUI {
             return $transaction->discard();
         });
     }
+<<<<<<< HEAD
 
     // Confirmation GUI for FastSwitching (in-place)
     public static function switchToUpgradeConfirmGUI(Player $player, NetherEconomy $plugin, InvMenu $menu, int $upgradeTier): void {
@@ -1172,3 +1173,6 @@ class BankGUI {
         return ucfirst(str_replace("_", " ", $parts[count($parts)-1]));
     }
 } 
+=======
+} 
+>>>>>>> 1470efe774f5a7f0374d261455b0f0a11f368735
