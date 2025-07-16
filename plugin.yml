@@ -1,6 +1,6 @@
 name: NetherEconomy
 main: NetherByte\NetherEconomy\NetherEconomy
-version: 1.0.0
+version: 1.1.0
 author: YourName
 api: [5.0.0]
 description: Hypixel-style economy plugin with deposit, withdraw, transactions, info, and upgrades.

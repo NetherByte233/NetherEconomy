@@ -48,7 +48,39 @@ DeathPenalty: false         # true = take % of purse on death
 PenaltyPercent: 50          # % of purse to take on death
 JoinBonus: false            # true = give new players a starting bonus
 JoinBonusAmount: 10000      # amount to give as join bonus
+BankUpgrade: true           # enable bank upgrade & info buttons in GUI
+AccountLimit: [50000000, 100000000, 250000000, 500000000, 1000000000, 6000000000, 60000000000]  # max bank for each tier
+UpgradeAmmount: [5000000, 10000000, 25000000, 50000000, 100000000, 200000000]                  # cost to upgrade to next tier
+UpgradeItems:
+  - null
+  - null
+  - {id: "minecraft:gold_block", count: 100}   # Example: 100 gold blocks for Silver tier
+  - null
+  - null
+  - null
+  - null
+InterestTime: 60            # Interest payout interval in minutes
+accounts:
+  starter:
+    brackets:
+      - { max: 10000000, rate: 0.02 }
+      - { max: 15000000, rate: 0.01 }
+    max_interest: 250000
+  bronze:
+    brackets:
+      - { max: 15000000, rate: 0.02 }
+      - { max: 20000000, rate: 0.015 }
+    max_interest: 400000
+  # Add more tiers as needed
 ```
+- Interest is paid to the bank account every `InterestTime` **minutes**.
+- Each account tier can have custom interest brackets and a max payout.
+- Example: For starter, 17M balance yields 10M*2% + 5M*1% = 250,000 (max payout).
+- Interest transactions are logged as `By Bank Interest`.
+- If `BankUpgrade` is `false`, bank limit is unlimited for all players.
+- If `BankUpgrade` is `true`, new players start at "Starter Account" (limit: 50,000,000). Upgrading increases their bank limit.
+- Server owners can change limits and upgrade costs by editing `config.yml`.
+- **Note:** Player purse is always unlimited, only bank is limited by account tier.
 
 - Edit `plugins/NetherEconomy/config.yml` to customize.
 
