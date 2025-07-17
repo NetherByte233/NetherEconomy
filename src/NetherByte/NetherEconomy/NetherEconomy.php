@@ -17,6 +17,7 @@ class NetherEconomy extends PluginBase implements Listener {
     private Config $balanceConfig;
     private Config $transactionConfig;
     private Config $configFile;
+    private int $globalLastInterest = 0;
 
     public function onEnable(): void {
         \NetherByte\NetherEconomy\libs\muqsit\invmenu\InvMenuHandler::register($this);
@@ -108,15 +109,22 @@ class NetherEconomy extends PluginBase implements Listener {
         $this->transactionConfig = new Config($this->getDataFolder() . "transactions.yml", Config::YAML);
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         $this->getLogger()->info("NetherEconomy enabled!");
-        // Schedule interest payout every InterestTime minutes
-        $intervalTicks = 20 * 60 * $this->getInterestTime(); // 1 minute = 60s = 60*20 ticks
-        $this->getScheduler()->scheduleRepeatingTask(new \pocketmine\scheduler\ClosureTask(function() {
-            $allPlayers = $this->balanceConfig->getAll();
-            foreach ($allPlayers as $playerName => $data) {
-                $playerObj = $this->getServer()->getPlayerExact($playerName);
-                $this->payInterestToName($playerName, $playerObj);
+        // Universal interest system
+        $this->globalLastInterest = (int)($this->configFile->get("global_last_interest", time()));
+        $interval = $this->getInterestTime() * 60;
+        $this->getScheduler()->scheduleRepeatingTask(new \pocketmine\scheduler\ClosureTask(function() use ($interval) {
+            $now = time();
+            if ($now - $this->globalLastInterest >= $interval) {
+                $allPlayers = $this->balanceConfig->getAll();
+                foreach ($allPlayers as $playerName => $data) {
+                    $playerObj = $this->getServer()->getPlayerExact($playerName);
+                    $this->payInterestToName($playerName, $playerObj, true); // force payout
+                }
+                $this->globalLastInterest = $now;
+                $this->configFile->set("global_last_interest", $now);
+                $this->configFile->save();
             }
-        }), $intervalTicks);
+        }), 20 * 60 * $this->getInterestTime());
     }
 
     public function getPurse(string $player): int {
@@ -434,17 +442,14 @@ class NetherEconomy extends PluginBase implements Listener {
      * Get last interest payout timestamp for a player
      */
     public function getLastInterestTime(string $player): int {
-        $data = $this->balanceConfig->get(strtolower($player), []);
-        return (int)($data["last_interest"] ?? 0);
+        // Deprecated, always return global
+        return $this->globalLastInterest;
     }
     /**
      * Set last interest payout timestamp for a player
      */
     public function setLastInterestTime(string $player, int $time): void {
-        $data = $this->balanceConfig->get(strtolower($player), []);
-        $data["last_interest"] = $time;
-        $this->balanceConfig->set(strtolower($player), $data);
-        $this->balanceConfig->save();
+        // Deprecated, do nothing
     }
     /**
      * Pay interest to a player if eligible (returns true if paid)
@@ -460,28 +465,30 @@ class NetherEconomy extends PluginBase implements Listener {
      * @param Player|null $playerObj
      * @return bool
      */
-    public function payInterestToName(string $playerName, ?Player $playerObj = null): bool {
+    public function payInterestToName(string $playerName, ?Player $playerObj = null, bool $force = false): bool {
         // Interest system only works if BankUpgrade is enabled
         if (!$this->isBankUpgradeEnabled()) {
+            $this->getLogger()->debug("[Interest] BankUpgrade is not enabled, skipping for $playerName");
             return false;
         }
-        $interval = $this->getInterestTime() * 60;
-        $last = $this->getLastInterestTime($playerName);
-        $now = time();
-        if ($now - $last < $interval) return false;
+        if (!$force) {
+            // Only allow payout from global task
+            return false;
+        }
         [$amount, $breakdown] = $this->calculateInterest($playerName);
+        $this->getLogger()->debug("[Interest] $playerName: Calculated interest amount=$amount");
         if ($amount > 0) {
             $currentBank = $this->getBank($playerName);
             $bankLimit = $this->getBankLimit($playerName);
             $space = $bankLimit - $currentBank;
             $toDeposit = max(0, min($amount, $space));
+            $this->getLogger()->debug("[Interest] $playerName: currentBank=$currentBank, bankLimit=$bankLimit, space=$space, toDeposit=$toDeposit");
             if ($toDeposit > 0) {
                 $this->addBank($playerName, $toDeposit, false); // Don't log 'You' transaction
-                $this->setLastInterestTime($playerName, $now);
                 $this->logTransaction($playerName, [
                     'type' => 'deposit',
                     'amount' => $toDeposit,
-                    'time' => $now,
+                    'time' => time(),
                     'by' => 'Bank Interest',
                 ]);
             }
@@ -496,6 +503,8 @@ class NetherEconomy extends PluginBase implements Listener {
                 }
             }
             return $toDeposit > 0;
+        } else {
+            $this->getLogger()->debug("[Interest] $playerName: No interest to pay (amount=0)");
         }
         return false;
     }
@@ -539,12 +548,7 @@ class NetherEconomy extends PluginBase implements Listener {
             $this->balanceConfig->set(strtolower($name), $data);
             $this->balanceConfig->save();
         }
-        // Set last_interest if not set
-        if (!isset($data["last_interest"])) {
-            $data["last_interest"] = time();
-            $this->balanceConfig->set(strtolower($name), $data);
-            $this->balanceConfig->save();
-        }
+        // No last_interest per player anymore
         if ($this->isJoinBonusEnabled()) {
             if (!isset($data["purse"])) {
                 $bonus = $this->getJoinBonusAmount();
