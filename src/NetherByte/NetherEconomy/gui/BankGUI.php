@@ -163,10 +163,10 @@ class BankGUI {
                     $interestKey = $plugin->getInterestTierKey($tier);
                     $maxInterest = isset($interestAccounts[$interestKey]["max_interest"]) ? $interestAccounts[$interestKey]["max_interest"] : 0;
                     // Next interest in
-                    $lastInterest = $plugin->getLastInterestTime($name);
+                    $globalLastInterest = $plugin->getLastInterestTime("");
                     $now = time();
                     $interval = $interestTime * 60;
-                    $nextIn = max(0, $lastInterest + $interval - $now);
+                    $nextIn = max(0, $globalLastInterest + $interval - $now);
                     // Format nextIn as h m s
                     if ($nextIn >= 3600) {
                         $h = floor($nextIn / 3600);
