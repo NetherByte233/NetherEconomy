@@ -163,6 +163,9 @@ MIT
 - Plugin by [NetherByte]
 
 ---
+## Tools
+- If you want a scoreboard plugin that shows player money than you can download this plugin
+- [NetherScoreboard](https://github.com/NetherByte233/NetherScoreboard)
 
 ## Support & Suggestions
 
